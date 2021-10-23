@@ -8,7 +8,7 @@
 #define OFF_LED	  PORTB |= (1 << PB7)
 #define ON_LED	  PORTB &= ~(1 << PB7)
 
-// Definicje inicjalizacyjne dla przycisków
+// Definicje inicjalizacyjne dla przyciskÃ³w
 #define INIT_SWSTART   DDRD &= ~(1<<PD2) //START
 #define INIT_SWSTOP    DDRD &= ~(1<<PD3) //STOP
 #define INIT_SWRESTART DDRB &= ~(1<<PB2) //RESTART
@@ -17,13 +17,13 @@
 #define SW_CONFIG_PULLUP_STOP    PORTD |= (1 << PD3)
 #define SW_CONFIG_PULLUP_RESTART PORTB |= (1 << PB2)
 
-// Definicje portu i rejestru kierunkowego dla segmentów wyœwietlacza
+// Definicje portu i rejestru kierunkowego dla segmentÃ³w wyÅ›wietlacza
 #define SEGMENTY_PORT		PORTA
 #define SEGMENTY_KIERUNEK	DDRA
 
-// Definicje portu i rejestru kierunkowego dla anod wyœwietlacza
+// Definicje portu i rejestru kierunkowego dla anod wyÅ›wietlacza
 #define ANODY_PORT			PORTC
-#define ANODY_KIERUNEK		DDRC
+#define ANODY_KIERUNEK			DDRC
 
 // Definicje bitow dla poszczegolnych anod
 #define ANODA_1				(1<<PC0)
@@ -44,45 +44,45 @@
 volatile uint8_t cyfra[4];
 volatile int odliczanie      = 0;
 volatile int wartosc         = 0;
-volatile int pomiar          = 1; // Zezwól na pocz¹tku programu na odczytywanie z przetwornika
+volatile int pomiar          = 1; // ZezwÃ³l na poczÄ…tku programu na odczytywanie z przetwornika
 volatile uint8_t licznik_ovf = 0;
 
 const uint8_t cyfry[15] = {
-		~(SEG_A|SEG_B|SEG_C|SEG_D|SEG_E|SEG_F),			//0		~0011 1111 	czyli 1100 0000	pod³¹czone anodami do masy
-		~(SEG_B|SEG_C),						            //1		~0000 0110	czyli 1111 1001
+		~(SEG_A|SEG_B|SEG_C|SEG_D|SEG_E|SEG_F),			    //0		~0011 1111 	czyli 1100 0000	podÅ‚Ä…czone anodami do masy
+		~(SEG_B|SEG_C),						    //1		~0000 0110	czyli 1111 1001
 		~(SEG_A|SEG_B|SEG_D|SEG_E|SEG_G),			    //2		~0101 1011	czyli 1010 0100
 		~(SEG_A|SEG_B|SEG_C|SEG_D|SEG_G),			    //3
-		~(SEG_B|SEG_C|SEG_F|SEG_G),				        //4
+		~(SEG_B|SEG_C|SEG_F|SEG_G),				    //4
 		~(SEG_A|SEG_C|SEG_D|SEG_F|SEG_G),			    //5
-		~(SEG_A|SEG_C|SEG_D|SEG_E|SEG_F|SEG_G),			//6
-		~(SEG_A|SEG_B|SEG_C|SEG_F),				        //7
-		~(SEG_A|SEG_B|SEG_C|SEG_D|SEG_E|SEG_F|SEG_G),	//8
-		~(SEG_A|SEG_B|SEG_C|SEG_D|SEG_F|SEG_G),			//9
+		~(SEG_A|SEG_C|SEG_D|SEG_E|SEG_F|SEG_G),			    //6
+		~(SEG_A|SEG_B|SEG_C|SEG_F),				    //7
+		~(SEG_A|SEG_B|SEG_C|SEG_D|SEG_E|SEG_F|SEG_G),		    //8
+		~(SEG_A|SEG_B|SEG_C|SEG_D|SEG_F|SEG_G),			    //9
 };
 
 void init(void)
 {
-	SEGMENTY_KIERUNEK |= SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G; // (DDRA  = x111 1111) Ustawienie rejestru kierunkowego portu segmentow na wyjscie
+	SEGMENTY_KIERUNEK |= SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G; 	// (DDRA  = x111 1111) Ustawienie rejestru kierunkowego portu segmentow na wyjscie
 	SEGMENTY_PORT |= SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G;	  	// (PORTA = x111 1111) Wygaszenie wszystkich katod - stan wysoki
 
-	ANODY_KIERUNEK |= ANODA_1 | ANODA_2 | ANODA_3;	// (DDRC = xxxx x111) Ustawienie anod na wyjscia
+	ANODY_KIERUNEK |= ANODA_1 | ANODA_2 | ANODA_3;		// (DDRC = xxxx x111) Ustawienie anod na wyjscia
 	ANODY_PORT |= ANODA_1 | ANODA_2 | ANODA_3;		// (PORTC = xxxx x111) Wygaszenie wszystkich wyswietlaczy - stan wysoki
 
-	INIT_SWSTART; // Inicjalizacja przcisków
+	INIT_SWSTART; // Inicjalizacja przciskÃ³w
 	INIT_SWSTOP;
 	INIT_SWRESTART;
 
 	INIT_LED;
 
-	SW_CONFIG_PULLUP_START; // Pull UP do przycisków
+	SW_CONFIG_PULLUP_START; // Pull UP do przyciskÃ³w
 	SW_CONFIG_PULLUP_STOP;
 	SW_CONFIG_PULLUP_RESTART;
 
 	// Ustawienia TIMER0
-	TCCR0 |= (1<<WGM01); // Tryb CTC
-	TCCR0 |= (1<<CS02) | (1<<CS00); // Preskaler = 1024
-	OCR0 = 53; // Dodatkowy podzial przez 53	(11059200 Hz / 1024 / 200Hz[oczekiwana wartoœc])-1 = 53
-	TIMSK |= (1<<OCIE0); // Zezwolenie na przerwanie CompareMatch
+	TCCR0 |= (1<<WGM01); 			// Tryb CTC
+	TCCR0 |= (1<<CS02) | (1<<CS00); 	// Preskaler = 1024
+	OCR0 = 53; 				// Dodatkowy podzial przez 53	(11059200 Hz / 1024 / 200Hz[oczekiwana wartoÅ›c])-1 = 53
+	TIMSK |= (1<<OCIE0); 			// Zezwolenie na przerwanie CompareMatch
 
     // Ustawienia TIMER2
     TCCR2 |= (1 << CS21) | (1<<CS22); 		// prescaler na 256
@@ -95,7 +95,7 @@ ISR(TIMER0_COMP_vect)
 	static uint8_t licznik = 1;
 	ANODY_PORT = ~licznik;
 
-	if(licznik==1) 		SEGMENTY_PORT = (cyfry[cyfra[0]]);
+	if(licznik==1) 	    SEGMENTY_PORT = (cyfry[cyfra[0]]);
 	else if(licznik==2) SEGMENTY_PORT = (cyfry[cyfra[1]]);
 	else if(licznik==4) SEGMENTY_PORT = (cyfry[cyfra[2]]);
 
@@ -106,7 +106,7 @@ ISR(TIMER0_COMP_vect)
 ISR(INT0_vect)  //START //PD2
 {
 	odliczanie = 1; // Zezwolenie na odliczanie
-	pomiar = 0; //Brak zezwolenia na pomiar ADC
+	pomiar = 0; 	//Brak zezwolenia na pomiar ADC
 }
 
 ISR(INT1_vect)  //STOP //PD3
@@ -116,7 +116,7 @@ ISR(INT1_vect)  //STOP //PD3
 
 ISR(INT2_vect)  //RESTART //PB2
 {
-	pomiar = 1; // Zezwolenie na pomiar ADC
+	pomiar = 1; 	// Zezwolenie na pomiar ADC
 	odliczanie = 0; // Brak zezwolenia na odliczanie
 }
 
@@ -125,9 +125,9 @@ ISR(TIMER2_OVF_vect)
 	licznik_ovf++;
 	if(licznik_ovf == 125)
     {
-		if(odliczanie == 1 && wartosc != 0) // Jeœli jest zezwolenie na odliczanie i zmierzona wartoœæ nie jest jeszcze zerem to:
+		if(odliczanie == 1 && wartosc != 0) // JeÅ›li jest zezwolenie na odliczanie i zmierzona wartoÅ›Ä‡ nie jest jeszcze zerem to:
             {
-			    wartosc--; //Zacznij odejmowaæ do zera
+			    wartosc--; 		    //Zacznij odejmowaÄ‡ do zera
 		    }
 		licznik_ovf = 0;
 	}
@@ -139,7 +139,7 @@ int main(void)
 
 	uint8_t z1, z2, z3;
 
-    ADMUX |= ((1 <<  REFS0) | (1 << MUX0) | (1 << MUX1) | (1 << MUX2)); //wybor zrodla napiecia odniesienia (AVCC (+5V) s.214) i pinu pomiarowego ADC (ADC7, bo na pinie PA7 (s.215))
+    ADMUX |= ((1 <<  REFS0) | (1 << MUX0) | (1 << MUX1) | (1 << MUX2));   //wybor zrodla napiecia odniesienia (AVCC (+5V) s.214) i pinu pomiarowego ADC (ADC7, bo na pinie PA7 (s.215))
 
     ADCSRA |= ((1 << ADEN) | (1 << ADPS0) | (1 << ADPS1) | (1 << ADPS2)); //uruchomienie przetwornika (s.216) i ustawienie czestotliwosci jego pracy (preskaler 128 (s.217))
 
@@ -152,7 +152,7 @@ int main(void)
 	GICR |= (1 << INT1); 		// przerwanie na STOP  //PD3
 	GICR |= (1 << INT2); 		// przerwanie na RESET //PB2
 
-    // Sprawdzenie czy dzia³a wyœwietlanie liczb
+    // Sprawdzenie czy dziaÅ‚a wyÅ›wietlanie liczb
 	cyfra[0] = 0;
 	cyfra[1] = 8;
 	cyfra[2] = 8;
@@ -162,23 +162,23 @@ int main(void)
 	cyfra[2] = 9;
 	_delay_ms(2500);
 
-    //Sprawdzenie dzia³ania diody LED
+    //Sprawdzenie dziaÅ‚ania diody LED
     ON_LED;
     _delay_ms(2000);
     OFF_LED;
 
     while(1)
 	{
-		ADCSRA |= (1 << ADSC); // uruchamia konwersje (s.216)
+		ADCSRA |= (1 << ADSC);  // uruchamia konwersje (s.216)
 
-		if(pomiar == 1) // Jeœli jest zezwolenie na pomiar -> wykonaj go
+		if(pomiar == 1) 	// JeÅ›li jest zezwolenie na pomiar -> wykonaj go
         {
 		while(ADCSRA & (1 << ADSC)); // oczekiwanie na zakonczenie konwersji
-		wartosc = ADC;             // odczyt pomiaru z przetwornika
+		wartosc = ADC;               // odczyt pomiaru z przetwornika
 		wartosc /= 10;
 		}
 
-		if(wartosc == 0 && pomiar == 0) // Jeœli wartoœæ pomiaru dosiêg³a zera i jest brak zezwolenia na pomiar -> uruchom diodê LED
+		if(wartosc == 0 && pomiar == 0) // JeÅ›li wartoÅ›Ä‡ pomiaru dosiÄ™gÅ‚a zera i jest brak zezwolenia na pomiar -> uruchom diodÄ™ LED
 		ON_LED;
 		else
 		OFF_LED;
