@@ -1,2 +1,2 @@
 # AVR
-AVR Microcontrollers (C) ATB 1.05a
+AVR Microcontrollers ATB 1.05a
